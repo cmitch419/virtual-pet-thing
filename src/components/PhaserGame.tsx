@@ -12,11 +12,16 @@ interface PhaserGameProps {
   numberOfFrames: number;
 }
 
+const GAME = {
+  width: 800,
+  height: 600,
+};
+
 const BOUNDS = {
-  minX: 0,
-  maxX: 800,
-  minY: 0,
-  maxY: 600,
+  minX: GAME.width * 0.05,
+  maxX: GAME.width * 0.95,
+  minY: GAME.height * 0.05,
+  maxY: GAME.height * 0.95,
 };
 
 const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameHeight, numberOfFrames }) => {
@@ -51,8 +56,8 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameH
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: GAME.width,
+      height: GAME.height,
       parent: 'phaser-game',
       scene: {
         preload: preload,
@@ -72,6 +77,16 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameH
 };
 
 const directions = [
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
+  'stand',
   'walk-left',
   'walk-right',
   'walk-up',
@@ -95,6 +110,8 @@ const movePet = (scene: CustomScene, pet: CustomSprite) => {
   const delta = speed * scene.game.loop.delta / 1000;
 
   switch (pet.direction) {
+    case 'stand':
+      break;
     case 'walk-left':
       pet.x -= delta;
       if (pet.x < BOUNDS.minX) {

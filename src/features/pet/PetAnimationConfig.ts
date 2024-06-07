@@ -11,7 +11,7 @@ export const createPetAnimations = (scene: Phaser.Scene, numberOfFrames: number)
   const frameRate = 15;
 
   scene.anims.create({
-    key: 'walk-left-angled',
+    key: 'stand',
     frames: scene.anims.generateFrameNumbers('pet', { start: 0, end: numberOfFrames - 1 }),
     frameRate,
     repeat: -1,

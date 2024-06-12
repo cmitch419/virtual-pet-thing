@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { feed, play, rename } from './petSlice';
-import PhaserGame from '../../components/PhaserGame';
+import PetPlaypen from '../../components/PetPlaypen';
 
 const Pet: React.FC = () => {
   const pet = useSelector((state: RootState) => state.pet);
@@ -11,7 +11,7 @@ const Pet: React.FC = () => {
   return (
     <div className="pet-container">
       <h1>{pet.name}</h1>
-      <PhaserGame
+      <PetPlaypen
         spriteSheet="/sprites/pet-sprite-sheet.png" // Adjust the path if needed
         frameWidth={32}
         frameHeight={32}

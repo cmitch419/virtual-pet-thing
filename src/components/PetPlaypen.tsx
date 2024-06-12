@@ -1,11 +1,10 @@
-// src/components/PhaserGame.tsx
 import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 import { preloadPetAnimations, createPetAnimations } from '../features/pet/PetAnimationConfig';
 import { CustomScene } from '../types/CustomScene';
 import { CustomSprite } from '../types/CustomSprite';
 
-interface PhaserGameProps {
+interface PetPlaypenProps {
   spriteSheet: string;
   frameWidth: number;
   frameHeight: number;
@@ -24,7 +23,7 @@ const BOUNDS = {
   maxY: GAME.height * 0.95,
 };
 
-const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameHeight, numberOfFrames }) => {
+const PetPlaypen: React.FC<PetPlaypenProps> = ({ spriteSheet, frameWidth, frameHeight, numberOfFrames }) => {
   useEffect(() => {
     const preload = function(this: Phaser.Scene) {
       preloadPetAnimations(this, spriteSheet, frameWidth, frameHeight);
@@ -34,12 +33,33 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameH
       const customScene = this as CustomScene;
       createPetAnimations(customScene, numberOfFrames);
 
-      const pet = customScene.add.sprite(400, 300, 'pet').setScale(2) as CustomSprite;
-      pet.play('walk-down');
-      pet.direction = 'walk-down';
+      const pet = customScene.add.sprite(GAME.width/2, GAME.height/2, 'pet').setScale(2) as CustomSprite;
+      pet.play('stand');
+      pet.direction = 'stand';
+
+      pet.setInteractive({ draggable: true });
+      
+      customScene.input.setDraggable(pet);
+
+      // Handle drag start
+      customScene.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite) => {
+        gameObject.play('stand');
+      });
+
+      // Handle dragging
+      customScene.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite, dragX: number, dragY: number) => {
+        gameObject.x = Phaser.Math.Clamp(dragX, BOUNDS.minX, BOUNDS.maxX);
+        gameObject.y = Phaser.Math.Clamp(dragY, BOUNDS.minY, BOUNDS.maxY);
+      });
+
+      // Handle drag end
+      customScene.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite) => {
+        const customPet = gameObject as CustomSprite;
+        customPet.play(customPet.direction); // Resume the walking animation based on the current direction
+      });
 
       customScene.pet = pet;
-
+      
       customScene.time.addEvent({
         delay: 2000,
         callback: () => changeDirection(customScene),
@@ -77,16 +97,6 @@ const PhaserGame: React.FC<PhaserGameProps> = ({ spriteSheet, frameWidth, frameH
 };
 
 const directions = [
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
-  'stand',
   'walk-left',
   'walk-right',
   'walk-up',
@@ -191,4 +201,4 @@ const movePet = (scene: CustomScene, pet: CustomSprite) => {
   }
 };
 
-export default PhaserGame;
+export default PetPlaypen;

@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './store/store';
 import { feed, play, rename } from './features/pet/petSlice';
-import PhaserGame from './components/PhaserGame';
+import PetPlaypen from './components/PetPlaypen';
 
 const App: React.FC = () => {
   const pet = useSelector((state: RootState) => state.pet);
@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <h1>{pet.name}</h1>
-      <PhaserGame
+      <PetPlaypen
         spriteSheet="sprites/slimebuddy.png"
         frameWidth={32}
         frameHeight={32}

@@ -1,3 +1,4 @@
+// src/components/PetPlaypen.tsx
 import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 import { preloadPetAnimations, createPetAnimations } from '../features/pet/PetAnimationConfig';
@@ -33,17 +34,18 @@ const PetPlaypen: React.FC<PetPlaypenProps> = ({ spriteSheet, frameWidth, frameH
       const customScene = this as CustomScene;
       createPetAnimations(customScene, numberOfFrames);
 
-      const pet = customScene.add.sprite(GAME.width/2, GAME.height/2, 'pet').setScale(2) as CustomSprite;
+      const pet = customScene.add.sprite(GAME.width / 2, GAME.height / 2, 'pet').setScale(2) as CustomSprite;
       pet.play('stand');
       pet.direction = 'stand';
 
       pet.setInteractive({ draggable: true });
-      
+
       customScene.input.setDraggable(pet);
 
       // Handle drag start
       customScene.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite) => {
-        gameObject.play('stand');
+        gameObject.play('dragging');
+        customScene.isDragging = true;
       });
 
       // Handle dragging
@@ -56,10 +58,12 @@ const PetPlaypen: React.FC<PetPlaypenProps> = ({ spriteSheet, frameWidth, frameH
       customScene.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite) => {
         const customPet = gameObject as CustomSprite;
         customPet.play(customPet.direction); // Resume the walking animation based on the current direction
+        customScene.isDragging = false;
       });
 
       customScene.pet = pet;
-      
+      customScene.isDragging = false;
+
       customScene.time.addEvent({
         delay: 2000,
         callback: () => changeDirection(customScene),
@@ -96,20 +100,35 @@ const PetPlaypen: React.FC<PetPlaypenProps> = ({ spriteSheet, frameWidth, frameH
   return <div id="phaser-game"></div>;
 };
 
-const directions = [
-  'walk-left',
-  'walk-right',
-  'walk-up',
-  'walk-down',
-  'walk-up-left',
-  'walk-up-right',
-  'walk-down-left',
-  'walk-down-right',
+// Define directions with weights
+const directionsWithWeights = [
+  { direction: 'stand', weight: 5 },
+  { direction: 'walk-left', weight: 1 },
+  { direction: 'walk-right', weight: 1 },
+  { direction: 'walk-up', weight: 1 },
+  { direction: 'walk-down', weight: 1 },
+  { direction: 'walk-up-left', weight: 1 },
+  { direction: 'walk-up-right', weight: 1 },
+  { direction: 'walk-down-left', weight: 1 },
+  { direction: 'walk-down-right', weight: 1 },
 ];
 
+// Utility function to select a direction based on weights
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const weightedRandom = (directionsWithWeights: any[]) => {
+  const totalWeight = directionsWithWeights.reduce((sum, item) => sum + item.weight, 0);
+  let randomNum = Math.random() * totalWeight;
+  for (const item of directionsWithWeights) {
+    if (randomNum < item.weight) {
+      return item.direction;
+    }
+    randomNum -= item.weight;
+  }
+};
+
 const changeDirection = (scene: CustomScene) => {
-  const newDirection = Phaser.Math.RND.pick(directions);
-  if (scene.pet) {
+  const newDirection = weightedRandom(directionsWithWeights);
+  if (scene.pet && !scene.isDragging) {
     scene.pet.play(newDirection);
     scene.pet.direction = newDirection;
   }
